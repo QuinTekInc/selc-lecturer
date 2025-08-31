@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:selc_lecturer/pages/lecturer_info_page.dart';
+import 'package:selc_lecturer/pages/view_evaluation.dart';
 
 
 import '../components/alert_dialog.dart';
@@ -726,7 +727,34 @@ class _CourseCellState extends State<CourseCell> {
   
   
   void handleOpenEvaluation() async {
-    
+
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => ViewCourseEvaluation(course: widget.course)
+        )
+    );
+
+
+    //first check if the course is current course
+    // if(widget.course.semester == Provider.of<SelcProvider>(context, listen: false).currentSemester && widget.course.year == DateTime.now().year){
+    //   showToastMessage(
+    //       context,
+    //       details: 'Cannot view evaluation report for this course at the moment.',
+    //       alertType: AlertType.warning
+    //   );
+    //   return;
+    // }
+    //
+    //
+    //
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (_) => ViewCourseEvaluation(course: widget.course)
+    //   )
+    // );
   }
 }
 
@@ -805,6 +833,16 @@ class _CurrentCourseCellState extends State<CurrentCourseCell> {
 
 
   void handleOpenEvaluation(){
+
+
+    if(Provider.of<SelcProvider>(context, listen: false).enableEvaluations){
+      showToastMessage(
+        context,
+        details: 'Cannot view evaluation report for this course at the moment.',
+        alertType: AlertType.warning
+      );
+      return;
+    }
 
   }
 }

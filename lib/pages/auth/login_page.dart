@@ -175,8 +175,6 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pop(context);
 
-      debugPrint('${error.toString()}\n${stackTrace.toString()}');
-
       showCustomAlertDialog(
         context, 
         title: 'Error', 

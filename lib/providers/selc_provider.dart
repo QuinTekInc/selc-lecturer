@@ -1,5 +1,5 @@
 
-// ignore_for_file: prefer_final_fields
+
 
 import 'dart:convert';
 
@@ -16,6 +16,7 @@ class SelcProvider extends ChangeNotifier{
 
 
   int? currentSemester;
+  bool enableEvaluations = true;
 
 
   List<ClassCourse> courses = [];
@@ -42,6 +43,9 @@ class SelcProvider extends ChangeNotifier{
 
 
     await saveAuthorizationToken(responseBody['auth_token']);
+
+    currentSemester = responseBody['current_semester'];
+    enableEvaluations = responseBody['enable_evaluations'];
 
     notifyListeners();
 
