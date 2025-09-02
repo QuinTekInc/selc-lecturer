@@ -51,6 +51,7 @@ class ClassCourse{
     final bool hasOnline;
     double meanScore;
     String remark;
+    final double ccLecturerRating;
 
 
     ClassCourse({
@@ -62,7 +63,8 @@ class ClassCourse{
         required this.year,
         this.meanScore = 0,
         required this.remark,
-        required this.hasOnline
+        required this.hasOnline,
+        required this.ccLecturerRating
     });
 
 
@@ -77,12 +79,14 @@ class ClassCourse{
             year: jsonMap['year'],
             meanScore: jsonMap['grand_mean_score'].toDouble() ?? 0,
             remark: jsonMap['remark'] ?? '',
-            hasOnline: jsonMap['has_online'] ?? false
+            hasOnline: jsonMap['has_online'] ?? false,
+            ccLecturerRating: jsonMap['lecturer_course_rating']
         );
     }
 
 
 }
+
 
 
 
@@ -115,14 +119,156 @@ enum AnswerType{
 }
 
 
-class Question{
-    final int questionId;
+
+
+
+class Questionnaire{
+    final int? questionId;
     final String question;
     final AnswerType answerType;
 
-    Question({
+    Questionnaire({
         required this.questionId,
         required this.question,
         required this.answerType
     });
+    
+    
+    factory Questionnaire.fromJson(Map<String, dynamic> jsonMap){
+        return Questionnaire(
+            questionId: jsonMap['id'],
+            question: jsonMap['question'],
+            answerType: AnswerType.fromTypeString(jsonMap['answer_type'])!
+        );
+    }
+
+
+    @override
+    bool operator ==(Object other) {
+
+        // TODO: implement ==
+
+        if(other.runtimeType != this.runtimeType) return false;
+
+
+        Questionnaire otherQuestionnaire = other as Questionnaire;
+
+        return this.question == otherQuestionnaire.question;
+    }
 }
+
+
+
+
+
+class CategorySummary{
+
+    final String category;
+    List<Questionnaire> questions;
+    double meanScore;
+    double percentageScore;
+    String remark;
+
+
+    CategorySummary({
+        required this.category,
+        this.questions = const [],
+        this.meanScore = 0,
+        this.percentageScore = 0,
+        this.remark = ''
+    });
+
+
+    factory CategorySummary.fromJson(Map<String, dynamic> jsonMap){
+
+        List<dynamic> questionsMap = jsonMap['questions'];
+
+        return CategorySummary(
+            category: jsonMap['category'],
+            questions: questionsMap.map((questionMap) => Questionnaire.fromJson(questionMap)).toList() ?? [],
+            meanScore: jsonMap['average_score'].toDouble() ?? 0,
+            percentageScore: jsonMap['percentage_score'].toDouble() ?? 0,
+            remark: jsonMap['remark']
+        );
+    }
+
+}
+
+
+
+
+
+class QuestionnaireEvaluation {
+    
+    final Questionnaire questionnaire;
+    final double meanScore;
+    final double percentageScore;
+    final String remark;
+    final Map<String, dynamic> answerSummary;
+    
+    QuestionnaireEvaluation({
+        required this.questionnaire,
+        this.meanScore = 0, 
+        this.percentageScore = 0, 
+        this.remark = '',
+        required this.answerSummary
+    });
+    
+    
+    
+    factory QuestionnaireEvaluation.fromJson(Map<String, dynamic> jsonMap){
+
+        Questionnaire questionnaire = Questionnaire.fromJson(jsonMap);
+        
+        Map<String, dynamic> answerSummary = processAnswerMap(questionnaire.answerType, jsonMap['answer_summary']);
+        
+        return QuestionnaireEvaluation(  
+            questionnaire: questionnaire,
+            meanScore: jsonMap['average_score'].toDouble() ?? 0,
+            percentageScore: jsonMap['percentage_score'].toDouble() ?? 0,
+            remark: jsonMap['remark'],
+            answerSummary: answerSummary
+        );
+    }
+    
+    
+    static Map<String, dynamic> processAnswerMap(AnswerType answerType, Map<String, dynamic> answerMap){
+
+        Map<String, int> newAnswerMap = {};
+
+        for(String answer in answerType.answers){
+
+            if(answerMap.containsKey(answer)){
+                newAnswerMap.addAll({answer: answerMap[answer]});
+            }else{
+                newAnswerMap.addAll({answer: 0});
+            }
+        }
+
+        return newAnswerMap;
+    }
+
+    
+}
+
+
+
+
+class LecturerRatingSummary{
+    final int rating;
+    final int ratingCount;
+    final double percentage;
+
+    LecturerRatingSummary({required this.rating, required this.ratingCount, required this.percentage});
+
+
+    factory LecturerRatingSummary.fromJson(Map<String, dynamic> jsonMap){
+        return LecturerRatingSummary(
+            rating: jsonMap['rating'],
+            ratingCount: jsonMap['rating_count'],
+            percentage: jsonMap['percentage'].toDouble()
+        );
+    }
+
+}
+

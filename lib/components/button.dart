@@ -125,3 +125,115 @@ class CustomCheckBox extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+class CustomDropdownButton<T> extends StatefulWidget {
+
+  final List<T> items;
+  final DropdownController controller;
+  final Function(T? newValue)? onChanged;
+  final String? hint;
+  final IconData? icon;
+  final Color? backgroundColor;
+
+  const CustomDropdownButton({
+    super.key,
+    required this.controller,
+    this.hint,
+    this.icon,
+    required this.items,
+    required this.onChanged,
+    this.backgroundColor
+  });
+
+  @override
+  State<CustomDropdownButton> createState() => _CustomDropdownButtonState<T>();
+}
+
+class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+
+      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.symmetric(horizontal: 8),
+
+      decoration: BoxDecoration(
+
+          color: widget.backgroundColor ?? Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+
+          border: Border.all(
+              color: Colors.black26,
+              width: 1.5
+          )
+      ),
+
+      child: DropdownButton<T>(
+
+          value: widget.controller.value,
+          icon: Icon(
+            widget.icon ?? Icons.arrow_drop_down,
+            color: Colors.green.shade400,
+            size: widget.icon == null ? 28 : null,
+          ),
+          isExpanded: true,
+          isDense: true,
+
+          underline: SizedBox(),
+
+          hint: widget.hint != null ? CustomText(
+            widget.hint!,
+            fontWeight: FontWeight.w600,
+            textColor: Colors.black38,
+          ) : null,
+
+          items: List<DropdownMenuItem<T>>.generate(
+              widget.items.length,
+                  (index) => DropdownMenuItem<T>(
+                value: widget.items[index],
+                child: CustomText(
+                    widget.items[index].toString()
+                ),
+              )
+          ),
+
+
+          borderRadius: BorderRadius.circular(12),
+          //Colors.grey.shade200
+          dropdownColor: Colors.grey.shade200,
+          focusColor: Colors.green.shade100,
+
+          onChanged: (newValue) {
+
+            setState(() => widget.controller.value = newValue);
+
+
+            if(widget.onChanged != null){
+              widget.onChanged!.call(newValue);
+            }
+
+          }
+      ),
+    );
+  }
+}
+
+
+class DropdownController<T>{
+
+  T? value;
+
+
+  DropdownController({this.value});
+
+  void reset() => value = null;
+
+}
+

@@ -83,4 +83,54 @@ class SelcProvider extends ChangeNotifier{
 
   }
 
+
+
+
+  Future<List<QuestionnaireEvaluation>> loadQuestionnaireEvaluations(int classCourseId) async{
+
+    final response = await connector.getRequest(endpoint: 'get-course-eval/$classCourseId');
+
+    if(response.statusCode != 200){
+      throw Error();
+    }
+
+
+    List<dynamic> responseBody = jsonDecode(response.body);
+
+    return responseBody.map((jsonMap) => QuestionnaireEvaluation.fromJson(jsonMap)).toList();
+  }
+
+
+  Future<List<CategorySummary>> loadCategorySummary(int classCourseId) async{
+
+    final response = await connector.getRequest(endpoint: 'get-course-cat-eval/$classCourseId');
+
+    if(response.statusCode != 200){
+      throw Error();
+    }
+
+
+    List<dynamic> responseBody = jsonDecode(response.body);
+
+    return responseBody.map((jsonMap) => CategorySummary.fromJson(jsonMap)).toList();
+  }
+
+
+
+  Future<List<LecturerRatingSummary>> loadCourseLRatingSummary(int classCourseId) async{
+
+    final response = await connector.getRequest(endpoint: 'get-course-lrating-eval/$classCourseId');
+
+    if(response.statusCode != 200){
+      throw Error();
+    }
+
+
+    List<dynamic> responseBody = jsonDecode(response.body);
+
+    print(responseBody);
+
+    return responseBody.map((jsonMap) => LecturerRatingSummary.fromJson(jsonMap)).toList();
+  }
+
 }
