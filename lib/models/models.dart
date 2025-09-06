@@ -272,3 +272,25 @@ class LecturerRatingSummary{
 
 }
 
+
+
+
+
+
+class CourseEvaluationSuggestion{
+    final Map<String, int> sentimentSummary;
+    final List<Map<String, dynamic>> suggestionsMap;
+
+    CourseEvaluationSuggestion({required this.sentimentSummary, required this.suggestionsMap});
+
+
+    factory CourseEvaluationSuggestion.fromJson(Map<String, dynamic> jsonMap){
+        return CourseEvaluationSuggestion(
+            sentimentSummary: jsonMap['sentiment_summary'],
+            suggestionsMap: jsonMap['suggestions']
+        );
+    }
+}
+
+
+
