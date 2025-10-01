@@ -34,6 +34,7 @@ class _ViewCourseEvaluationState extends State<ViewCourseEvaluation>  with Ticke
   late List<QuestionnaireEvaluation> questionEvaluations;
   late List<CategorySummary> categorySummaries;
   late List<LecturerRatingSummary> ratingSummary;
+  late CourseEvaluationSuggestion evaluationSuggestion;
 
   bool isLoading = false;
 
@@ -73,6 +74,8 @@ class _ViewCourseEvaluationState extends State<ViewCourseEvaluation>  with Ticke
       categorySummaries = await Provider.of<SelcProvider>(context, listen: false).loadCategorySummary(widget.course.classCourseId);
 
       ratingSummary = await Provider.of<SelcProvider>(context, listen: false).loadCourseLRatingSummary(widget.course.classCourseId);
+
+      evaluationSuggestion = await Provider.of<SelcProvider>(context, listen: false).loadEvaluationSuggestion(widget.course.classCourseId);
 
     } on SocketException{
 
@@ -136,7 +139,7 @@ class _ViewCourseEvaluationState extends State<ViewCourseEvaluation>  with Ticke
 
                 Spacer(),
 
-                if(!isLoading && !hasError)Container(
+                if(!isLoading && !hasError) Container(
                     padding: EdgeInsets.zero,
                     height: 45,
                     width: MediaQuery.of(context).size.width * 0.22,
@@ -242,14 +245,14 @@ class _ViewCourseEvaluationState extends State<ViewCourseEvaluation>  with Ticke
                             categorySummaries: categorySummaries,
                             questionEvaluations: questionEvaluations, 
                             ratingSummary: ratingSummary,
+                            sentimentSummary: evaluationSuggestion.sentimentSummary,
                           ),
                           
-                          SuggestionSection()
+                          SuggestionSection(evalSuggestion: evaluationSuggestion,)
                         ]
                       )
                     )
                   )
-
 
                 ],
               ),
@@ -280,8 +283,6 @@ class _ViewCourseEvaluationState extends State<ViewCourseEvaluation>  with Ticke
       ),
     );
   }
-
-
 
 
 }
@@ -779,7 +780,17 @@ class QuestionsVisualization extends StatelessWidget {
   final List<QuestionnaireEvaluation> questionEvaluations;
   final List<LecturerRatingSummary> ratingSummary;
 
-  const QuestionsVisualization({super.key, required this.lecturerRating, required this.categorySummaries, required this.questionEvaluations, required this.ratingSummary});
+  final List<SuggestionSentimentSummary> sentimentSummary;
+
+  const QuestionsVisualization({
+    super.key,
+    required this.lecturerRating,
+    required this.categorySummaries,
+    required this.questionEvaluations,
+    required this.ratingSummary,
+    required this.sentimentSummary
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -822,7 +833,7 @@ class QuestionsVisualization extends StatelessWidget {
                       )
                   ),
 
-                  for(int i = 0; i < evaluations.length; i++)QuestionnaireCard(
+                  for(int i = 0; i < evaluations.length; i++) QuestionnaireCard(
                     questionNumber: 1+questionEvaluations.indexOf(evaluations[i]),
                     evaluation: evaluations[i],
                   )
@@ -835,7 +846,7 @@ class QuestionsVisualization extends StatelessWidget {
           Center(
             child: FractionallySizedBox(
               widthFactor: 0.6,
-              child: HeaderText('Lecturer Rating Summary'),
+              child: HeaderText('Lecturer Rating'),
             )
           ),
 
@@ -843,7 +854,139 @@ class QuestionsVisualization extends StatelessWidget {
 
           Center(
             child: LecturerRatingCard(lecturerRating: lecturerRating, ratingSummary: ratingSummary,)
+          ),
+
+
+
+
+          Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.6,
+                child: HeaderText('Evaluation Suggestions'),
+              )
+          ),
+
+
+
+          Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.6,
+
+              child: Container(
+
+                padding: const EdgeInsets.all(12),
+                width: double.infinity,
+
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.grey.shade50
+                ),
+
+                child: Column(
+
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
+
+                  children: [
+
+                    Row(
+                      spacing: 8,
+                      children: [
+
+                        CustomText(
+                          'Evaluation Suggestion Sentiment Summary',
+                          fontSize: 15,
+                        ),
+
+                        Spacer(),
+
+                        SizedBox(
+                          height: 35,
+                          child: VerticalDivider()
+                        ),
+
+
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+
+                            CustomText(
+                              'Answer Type',
+                              fontWeight: FontWeight.w600,
+                              textColor: Colors.grey.shade600,
+                            ),
+
+                            CustomText(
+                              'Suggestion',
+                              textColor: Colors.green.shade400,
+                            )
+                          ]
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 8,
+
+                        children: List<Widget>.generate(
+                          sentimentSummary.length,
+                          (int index) {
+
+                            String sentiment = sentimentSummary[index].sentiment;
+                            int count = sentimentSummary[index].sentimentCount;
+                            double percent = sentimentSummary[index].sentimentPercent;
+
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+
+                                Expanded(
+                                  flex: 2,
+                                  child: CustomText(
+                                    sentiment,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15
+                                  ),
+                                ),
+
+                                Expanded(
+                                  child: CustomText(
+                                    count.toString(),
+                                    fontSize: 15,
+                                    textAlignment: TextAlign.center
+                                  ),
+                                ),
+
+                                Expanded(
+                                  child: CustomText(
+                                    '$percent %',
+                                    fontSize: 15,
+                                    textAlignment: TextAlign.center,
+                                  ),
+                                )
+
+                              ]
+                            );
+                          }
+                        )
+                      )
+                    )
+
+                  ]
+                )
+              ),
+            )
           )
+
         ]
       ),
     );
@@ -1130,6 +1273,7 @@ class _QuestionnaireCardState extends State<QuestionnaireCard> {
 
 
 
+
 //todo: lecturer ratings card. (normally used with the questionnaire visualisation secction)
 class LecturerRatingCard extends StatelessWidget {
   
@@ -1309,12 +1453,116 @@ class LecturerRatingCard extends StatelessWidget {
 
 //todo: evaluation suggestions sections
 class SuggestionSection extends StatelessWidget {
-  const SuggestionSection({super.key});
+
+  final CourseEvaluationSuggestion evalSuggestion;
+
+  const SuggestionSection({super.key, required this.evalSuggestion});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column()
+    return evalSuggestion.suggestionsMap.isEmpty ? buildNoSuggestionSection() : SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+
+          FractionallySizedBox(
+            widthFactor: 0.6,
+
+            child: CustomBarChart(
+              chartTitle: 'Students\' Suggestion Sentiment Summary',
+              leftAxisTitle: 'Frequency',
+              bottomAxisTitle: 'Sentiment',
+              containerBackgroundColor: Colors.grey.shade50,
+              width: double.infinity,
+
+              groups: List<CustomBarGroup>.generate(
+                evalSuggestion.sentimentSummary.length,
+                (int index) {
+
+                  String sentiment = evalSuggestion.sentimentSummary[index].sentiment;
+                  int sentimentCount = evalSuggestion.sentimentSummary[index].sentimentCount;
+
+                  return CustomBarGroup(
+                    x: index,
+                    label: sentiment,
+                    rods: [Rod(y: sentimentCount.toDouble())]
+                  );
+                }
+              )
+            ),
+          ),
+
+
+          const SizedBox(height: 12,),
+
+
+          FractionallySizedBox(
+            widthFactor: 0.6,
+
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 8,
+              children: [
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: HeaderText('Evaluations Suggestions'
+                  )
+                ),
+
+
+                for(int i=0; i < evalSuggestion.suggestionsMap.length; i++) Container(
+                  padding: EdgeInsets.all(8),
+                  width: double.infinity,
+
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  child: ListTile(
+                    leading: Icon(CupertinoIcons.person, size: 30, color: Colors.green.shade300,),
+                    title: CustomText(
+                      evalSuggestion.suggestionsMap[i]['suggestion'],
+                      fontSize: 15,
+                    ),
+                  ),
+                )
+
+
+              ],
+            ),
+          )
+
+        ]
+      )
+    );
+  }
+
+
+  Widget buildNoSuggestionSection(){
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: 0.4,
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+
+          children: [
+
+            HeaderText('No Evaluation Suggestions'),
+
+            CustomText(
+              'All suggestions made by students for this course appear here.'
+            )
+
+          ],
+        )
+      )
     );
   }
 }

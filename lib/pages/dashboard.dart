@@ -58,8 +58,9 @@ class _DashboardState extends State<Dashboard> {
 
       showNoConnectionAlertDialog(context);
 
-    }on Error catch(_, trace){
+    }on Error catch(error, trace){
 
+      debugPrint(error.toString());
       debugPrint(trace.toString());
       
       showCustomAlertDialog(

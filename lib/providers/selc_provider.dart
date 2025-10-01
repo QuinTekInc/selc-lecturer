@@ -128,9 +128,22 @@ class SelcProvider extends ChangeNotifier{
 
     List<dynamic> responseBody = jsonDecode(response.body);
 
-    print(responseBody);
-
     return responseBody.map((jsonMap) => LecturerRatingSummary.fromJson(jsonMap)).toList();
+  }
+
+
+  Future<CourseEvaluationSuggestion> loadEvaluationSuggestion(int classCourseId) async {
+
+    final response = await connector.getRequest(endpoint: 'get-course-eval-suggestions/$classCourseId');
+
+    if(response.statusCode != 200){
+      throw Error();
+    }
+
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+    return CourseEvaluationSuggestion.fromJson(responseBody);
+
   }
 
 }

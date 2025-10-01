@@ -3,7 +3,8 @@
 import 'package:http/http.dart' as http;
 import 'package:selc_lecturer/components/preferences_util.dart';
 
-const String base_url = 'http://127.0.0.1:8000';
+//const String base_url = 'http://127.0.0.1:8000';
+const String base_url = 'https://selc-backend.onrender.com';
 
 
 String concat(String other){

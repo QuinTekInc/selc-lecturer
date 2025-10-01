@@ -80,7 +80,7 @@ class ClassCourse{
             meanScore: jsonMap['grand_mean_score'].toDouble() ?? 0,
             remark: jsonMap['remark'] ?? '',
             hasOnline: jsonMap['has_online'] ?? false,
-            ccLecturerRating: jsonMap['lecturer_course_rating']
+            ccLecturerRating: jsonMap['lecturer_course_rating'].toDouble() ?? 0
         );
     }
 
@@ -185,7 +185,7 @@ class CategorySummary{
 
         return CategorySummary(
             category: jsonMap['category'],
-            questions: questionsMap.map((questionMap) => Questionnaire.fromJson(questionMap)).toList() ?? [],
+            questions: questionsMap.map((questionMap) => Questionnaire.fromJson(questionMap)).toList(),
             meanScore: jsonMap['average_score'].toDouble() ?? 0,
             percentageScore: jsonMap['percentage_score'].toDouble() ?? 0,
             remark: jsonMap['remark']
@@ -255,6 +255,7 @@ class QuestionnaireEvaluation {
 
 
 class LecturerRatingSummary{
+
     final int rating;
     final int ratingCount;
     final double percentage;
@@ -276,9 +277,33 @@ class LecturerRatingSummary{
 
 
 
+class SuggestionSentimentSummary{
+
+    final String sentiment;
+    final int sentimentCount;
+    final double sentimentPercent;
+
+
+    SuggestionSentimentSummary({
+        required this.sentiment,
+        required this.sentimentCount,
+        required this.sentimentPercent
+    });
+
+
+    factory SuggestionSentimentSummary.fromJson(Map<String, dynamic> jsonMap){
+        return SuggestionSentimentSummary(
+            sentiment: jsonMap['sentiment'],
+            sentimentCount: jsonMap['sentiment_count'],
+            sentimentPercent: jsonMap['sentiment_percent'].toDouble())
+        ;
+    }
+
+}
+
 
 class CourseEvaluationSuggestion{
-    final Map<String, int> sentimentSummary;
+    final List<SuggestionSentimentSummary> sentimentSummary;
     final List<Map<String, dynamic>> suggestionsMap;
 
     CourseEvaluationSuggestion({required this.sentimentSummary, required this.suggestionsMap});
@@ -286,8 +311,12 @@ class CourseEvaluationSuggestion{
 
     factory CourseEvaluationSuggestion.fromJson(Map<String, dynamic> jsonMap){
         return CourseEvaluationSuggestion(
-            sentimentSummary: jsonMap['sentiment_summary'],
-            suggestionsMap: jsonMap['suggestions']
+
+            sentimentSummary: List<Map<String, dynamic>>.from(
+                jsonMap['sentiment_summary']).map(
+                    (sentimentJson) => SuggestionSentimentSummary.fromJson(sentimentJson)).toList(),
+
+            suggestionsMap: List<Map<String, dynamic>>.from(jsonMap['suggestions'])
         );
     }
 }
