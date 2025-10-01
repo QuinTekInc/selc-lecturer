@@ -1,4 +1,6 @@
 
+// ignore_for_file: unused_catch_stack
+
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -180,6 +182,8 @@ class _LoginPageState extends State<LoginPage> {
         title: 'Error', 
         contentText: 'An unexpected error occurred'
       );
+
+      //debugPrint(stackTrace.toString());
     }
 
 
